@@ -48,47 +48,65 @@ export default function Navbar() {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 h-16">
       <div className="flex items-center justify-between px-6 max-w-6xl mx-auto h-full">
         {/* Left side */}
-        <Link href="/" className="font-bold text-xl text-blue-600">
-          SkillBridge
-        </Link>
+        <div className="flex items-center space-x-8">
+          <Link href="/" className="font-bold text-xl text-blue-600">
+            SkillBridge
+          </Link>
+          <div className="hidden md:flex items-center space-x-6">
+            <Link
+              href="/dashboard"
+              className="text-gray-700 hover:text-blue-600 font-medium text-sm transition-colors"
+            >
+              Dashboard
+            </Link>
+            <Link
+              href="/upload"
+              className="text-gray-600 hover:text-blue-600 font-medium text-sm transition-colors"
+            >
+              Upload Skills
+            </Link>
+            <Link
+              href="/profile"
+              className="text-gray-600 hover:text-blue-600 font-medium text-sm transition-colors"
+            >
+              Profile
+            </Link>
+          </div>
+        </div>
 
         {/* Right side */}
-        <div className="flex items-center space-x-6">
+        <div className="flex items-center space-x-4">
+          <Link
+            href="/dashboard"
+            className="md:hidden text-gray-700 hover:text-blue-600 text-sm font-medium"
+          >
+            Dashboard
+          </Link>
           {user ? (
-            <>
-              <Link
-                href="/dashboard"
-                className="text-gray-600 hover:text-blue-600 transition-colors"
-              >
-                Dashboard
-              </Link>
-              <Link
-                href="/upload"
-                className="text-gray-600 hover:text-blue-600 transition-colors"
-              >
-                Upload
-              </Link>
-              <Link
-                href="/profile"
-                className="text-gray-600 hover:text-blue-600 transition-colors"
-              >
-                Profile
-              </Link>
+            <div className="flex items-center space-x-3">
+              <span className="hidden sm:inline-block text-xs text-gray-500 font-medium truncate max-w-[150px]">
+                {user?.user_metadata?.name || user?.email}
+              </span>
               <Button variant="outline" size="sm" onClick={handleLogout}>
                 Logout
               </Button>
-            </>
+            </div>
           ) : (
-            <Link
-              href="/login"
-              className="text-gray-600 hover:text-blue-600 transition-colors"
-            >
-              Login
-            </Link>
+            <div className="flex items-center space-x-2">
+              <Link href="/login">
+                <Button size="sm" variant="outline">
+                  Login
+                </Button>
+              </Link>
+              <Link href="/dashboard">
+                <Button size="sm">
+                  View Dashboard
+                </Button>
+              </Link>
+            </div>
           )}
         </div>
       </div>
     </nav>
   );
 }
-
