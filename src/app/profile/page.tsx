@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Mail, GraduationCap, BookOpen, Calendar } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { apiFetch } from '@/lib/api';
@@ -13,6 +14,14 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 
 export default function ProfilePage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) router.push('/login');
+    });
+  }, [router]);
+
   const [user, setUser] = useState<any>(null);
   const [skills, setSkills] = useState<string[]>([]);
   const [matchCount, setMatchCount] = useState<number>(0);
@@ -198,4 +207,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-

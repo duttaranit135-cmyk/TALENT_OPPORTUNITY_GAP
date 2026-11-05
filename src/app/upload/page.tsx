@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabase';
 import { apiFetch } from '@/lib/api';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -27,6 +28,12 @@ const SKILL_CATEGORIES: Record<string, string[]> = {
 
 export default function UploadPage() {
   const router = useRouter();
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) router.push('/login');
+    });
+  }, [router]);
 
   const [type, setType] = useState<string>('');
   const [url, setUrl] = useState<string>('');
@@ -206,4 +213,3 @@ export default function UploadPage() {
     </div>
   );
 }
-

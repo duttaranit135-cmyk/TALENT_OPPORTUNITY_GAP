@@ -2,8 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Calendar } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { MatchScoreBadge } from '@/components/MatchScoreBadge';
 import { SkillTag } from '@/components/SkillTag';
@@ -22,9 +25,16 @@ type Problem = {
 };
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [problems, setProblems] = useState<Problem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) router.push('/login');
+    });
+  }, [router]);
 
   useEffect(() => {
     const fetchProblems = async () => {
@@ -80,10 +90,16 @@ export default function DashboardPage() {
 
       {/* Empty State */}
       {!loading && !error && problems.length === 0 && (
-        <Card className="p-8 text-center bg-gray-50 border-gray-200">
-          <p className="text-gray-500 font-medium">
-            No opportunities yet. Check back soon!
+        <Card className="p-8 text-center max-w-md mx-auto">
+          <h2 className="text-lg font-semibold text-gray-700">No opportunities yet</h2>
+          <p className="text-sm text-gray-500 mt-2">
+            Organizations haven't posted any problems yet. Upload your skills in the meantime so you're ready when they do!
           </p>
+          <Link href="/upload">
+            <Button variant="outline" className="mt-4">
+              Upload Your Skills
+            </Button>
+          </Link>
         </Card>
       )}
 
@@ -140,4 +156,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-

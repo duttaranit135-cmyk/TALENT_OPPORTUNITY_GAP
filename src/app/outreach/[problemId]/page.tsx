@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useParams } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Sparkles, Copy, Check } from 'lucide-react';
 
@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/select';
 
 import { apiFetch } from '@/lib/api';
+import { supabase } from '@/lib/supabase';
 
 type Draft = {
   id: string;
@@ -26,7 +27,14 @@ type Draft = {
 
 export default function OutreachPage() {
   const params = useParams();
+  const router = useRouter();
   const problemId = params.problemId as string;
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) router.push('/login');
+    });
+  }, [router]);
 
   const [tone, setTone] = useState<string>('formal');
   const [loading, setLoading] = useState<boolean>(false);
@@ -150,4 +158,3 @@ export default function OutreachPage() {
     </div>
   );
 }
-

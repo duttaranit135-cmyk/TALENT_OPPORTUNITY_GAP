@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Calendar, Send } from 'lucide-react';
 
@@ -15,6 +15,7 @@ import { SkillTag } from '@/components/SkillTag';
 import { ActionPlanCard } from '@/components/ActionPlanCard';
 import { SkillRadarChart } from '@/components/SkillRadarChart';
 import { apiFetch } from '@/lib/api';
+import { supabase } from '@/lib/supabase';
 
 type ProblemDetail = {
   problem: {
@@ -47,7 +48,14 @@ type ActionPlan = {
 
 export default function ProblemDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const problemId = params.id as string;
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) router.push('/login');
+    });
+  }, [router]);
 
   const [problemData, setProblemData] = useState<ProblemDetail | null>(null);
   const [problemLoading, setProblemLoading] = useState<boolean>(true);
@@ -268,4 +276,3 @@ export default function ProblemDetailPage() {
     </div>
   );
 }
-
