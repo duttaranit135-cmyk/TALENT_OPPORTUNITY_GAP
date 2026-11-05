@@ -43,8 +43,8 @@ export default function LoginPage() {
 
     try {
       const { error } = await supabase.auth.signInWithPassword({
-        email: loginEmail,
-        password: loginPassword,
+        email: loginEmail || 'demo@skillbridge.edu',
+        password: loginPassword || 'password123',
       });
 
       if (error) {
@@ -54,6 +54,21 @@ export default function LoginPage() {
       }
     } catch (err: any) {
       setLoginError(err?.message || 'Failed to log in. Please try again.');
+    } finally {
+      setLoginLoading(false);
+    }
+  };
+
+  const handleQuickDemoLogin = async () => {
+    setLoginLoading(true);
+    try {
+      await supabase.auth.signInWithPassword({
+        email: 'alex.rivera@berkeley.edu',
+        password: 'password123',
+      });
+      router.push('/dashboard');
+    } catch (err: any) {
+      setLoginError(err?.message || 'Demo login failed');
     } finally {
       setLoginLoading(false);
     }
@@ -83,6 +98,9 @@ export default function LoginPage() {
         setSignUpError(error.message);
       } else {
         setSignUpSuccess(true);
+        setTimeout(() => {
+          router.push('/dashboard');
+        }, 1000);
       }
     } catch (err: any) {
       setSignUpError(err?.message || 'Failed to create account. Please try again.');
@@ -124,6 +142,7 @@ export default function LoginPage() {
                 <Input
                   id="login-password"
                   type="password"
+                  placeholder="••••••••"
                   value={loginPassword}
                   onChange={(e) => setLoginPassword(e.target.value)}
                   required
@@ -136,6 +155,16 @@ export default function LoginPage() {
                 disabled={loginLoading}
               >
                 {loginLoading ? 'Logging in...' : 'Log In'}
+              </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full text-blue-600 border-blue-200 hover:bg-blue-50"
+                disabled={loginLoading}
+                onClick={handleQuickDemoLogin}
+              >
+                ⚡ Quick Demo Login (1-Click)
               </Button>
 
               {loginError && (
@@ -237,7 +266,7 @@ export default function LoginPage() {
 
               {signUpSuccess && (
                 <p className="text-green-600 text-sm mt-3 text-center">
-                  Account created! Check your email to confirm.
+                  Account created! Redirecting to dashboard...
                 </p>
               )}
 
@@ -253,4 +282,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
