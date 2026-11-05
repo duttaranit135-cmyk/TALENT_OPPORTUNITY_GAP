@@ -1,0 +1,172 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  STUDENT
+  ORG_ADMIN
+}
+
+enum ArtifactType {
+  GITHUB_URL
+  PDF_LINK
+  TEXT
+  VIDEO_URL
+  FIGMA_URL
+}
+
+enum SkillCategory {
+  PROGRAMMING
+  DESIGN
+  RESEARCH
+  COMMUNICATION
+  DATA
+  OTHER
+}
+
+enum OrgType {
+  STARTUP
+  NGO
+  RESEARCH
+  CORPORATE
+  GOVERNMENT
+}
+
+enum CommitmentType {
+  ONE_TIME
+  PART_TIME
+  FULL_TIME
+  INTERNSHIP
+}
+
+enum ProblemStatus {
+  OPEN
+  CLOSED
+  DRAFT
+}
+
+model User {
+  id             String          @id @default(uuid())
+  email          String          @unique
+  name           String
+  role           Role            @default(STUDENT)
+  university     String?
+  major          String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  artifacts      Artifact[]
+  skillProofs    SkillProof[]
+  matches        Match[]
+  outreachDrafts OutreachDraft[]
+}
+
+model Artifact {
+  id          String        @id @default(uuid())
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        ArtifactType
+  url         String?
+  description String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  skillProofs SkillProof[]
+
+  @@index([userId])
+}
+
+model Skill {
+  id          String        @id @default(uuid())
+  name        String        @unique
+  category    SkillCategory
+  createdAt   DateTime      @default(now())
+  skillProofs SkillProof[]
+}
+
+model SkillProof {
+  id              String    @id @default(uuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skillId         String
+  skill           Skill     @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  artifactId      String?
+  artifact        Artifact? @relation(fields: [artifactId], references: [id], onDelete: Cascade)
+  confidenceScore Int       @default(80)
+  source          String    @default("SELF_REPORTED")
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@unique([userId, skillId, artifactId])
+  @@index([userId])
+  @@index([skillId])
+  @@index([artifactId])
+}
+
+model Organization {
+  id          String    @id @default(uuid())
+  name        String
+  type        OrgType   @default(STARTUP)
+  description String?
+  website     String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  problems    Problem[]
+}
+
+model Problem {
+  id             String          @id @default(uuid())
+  title          String
+  description    String
+  organizationId String
+  organization   Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  requiredSkills String[]
+  domainTags     String[]        @default([])
+  deadline       DateTime?
+  commitmentType CommitmentType  @default(ONE_TIME)
+  status         ProblemStatus   @default(OPEN)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  matches        Match[]
+  outreachDrafts OutreachDraft[]
+
+  @@index([organizationId])
+  @@index([status])
+}
+
+model Match {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problemId    String
+  problem      Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  matchScore   Int
+  skillOverlap String[]
+  skillGap     String[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([userId, problemId])
+  @@index([userId])
+  @@index([problemId])
+}
+
+model OutreachDraft {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problemId   String
+  problem     Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  tone        String
+  subjectLine String
+  body        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+  @@index([problemId])
+}
+
